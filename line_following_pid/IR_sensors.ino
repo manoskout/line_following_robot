@@ -1,3 +1,12 @@
+float pTerm, iTerm, dTerm;
+int error;
+int previousError;
+float kp = 11; //11
+float ki = 0;
+float kd = 11; //11
+float output;
+int integral, derivative;
+int irReadings[5];
 
 void readIRSensors() {
   //Read the IR sensors and put the readings in irReadings array
@@ -5,8 +14,7 @@ void readIRSensors() {
     int pinNum = irSensors[pin];
     irReadings[pin] = digitalRead(pinNum);
   }
-  delay(100);
-
+  vTaskDelay(100/portTICK_PERIOD_MS);
 }
 
 

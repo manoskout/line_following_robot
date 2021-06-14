@@ -1,4 +1,10 @@
 
+const int motor2Speed = 120; 
+const int motor1Speed = 120; 
+
+const int adj = 1;
+float adjTurn = 8;
+
 void changeMotorSpeed() {
   //Change motor speed of both motors accordingly
   Serial.print(" OUTPUT : ");Serial.print(output);
@@ -48,7 +54,7 @@ void changeMotorSpeed() {
 void motorStop() {
   ledcWrite(M1_ENABLE_CHANNEL, 0);
   ledcWrite(M2_ENABLE_CHANNEL, 0);
-  delay(200);
+  vTaskDelay(200/portTICK_PERIOD_MS);
 }
 
 void motorTurn(int direction, int degrees)

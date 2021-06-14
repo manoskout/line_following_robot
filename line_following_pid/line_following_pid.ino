@@ -1,3 +1,4 @@
+// #include <Arduino_FreeRTOS.h>
 #define PWM_FREQUENCY   1000
 #define PWM_RESOLUTION  8
 
@@ -26,25 +27,38 @@ const int motor2Forward = 25;
 const int motor2Backward = 26;
 const int motor2pwmPin = 23;
 
-const int motor2Speed = 120; 
-const int motor1Speed = 120; 
-
-const int adj = 1;
-float adjTurn = 8;
 
 int mode = FOLLOWING_LINE;
 
-float pTerm, iTerm, dTerm;
-int error;
-int previousError;
-float kp = 11; //11
-float ki = 0;
-float kd = 11; //11
-float output;
-int integral, derivative;
-int irReadings[5];
+
+
 int motor1newSpeed;
 int motor2newSpeed;
+
+void PIDtask(void * parameters){
+  for(;;){
+    readIRSensors();
+    calculateError();
+  }
+}
+
+void motorTask(void * parameter){
+  for(;;){
+    if (mode == STOPPED){
+    // Serial.println("-- STOPPED -- ");
+    motorStop();
+    }else if (mode==NO_LINE){
+      // Serial.println("-- NO_LINE -- ");
+      // motorStop();
+      vTaskDelay(400/portTICK_PERIOD_MS);
+      motorTurn(RIGHT,180);
+    }else{
+      // Serial.println("-- FOLLOWING_LINE -- ");
+      pidCalculations();
+      changeMotorSpeed();
+    }
+  }
+}
 
 void setup() {
   // Declare all Motor Channels
@@ -69,26 +83,46 @@ void setup() {
   // Begin Serial Monitor
   Serial.begin(115200);
   Serial.println("ESP32 PD Line Following Robot");
+  xTaskCreate(
+    PIDtask, // function name
+    "PID task",
+    2000, // Stack size
+    NULL, // Task parameter
+    1, // Task priority
+    NULL
+  );
+  xTaskCreate(
+    motorTask, // function name
+    "motor task",
+    2000, // Stack size
+    NULL, // Task parameter
+    1, // Task priority
+    NULL
+  );
+  vTaskDelay(500/portTICK_PERIOD_MS);
 
-  delay(500);
 }
+
+
+
 
 void loop() {
-  //Put all of our functions here
-  readIRSensors();
-  calculateError();
-  if (mode == STOPPED){
-    // Serial.println("-- STOPPED -- ");
-    motorStop();
-  }else if (mode==NO_LINE){
-    // Serial.println("-- NO_LINE -- ");
-    // motorStop();
-    delay(400);
-    motorTurn(RIGHT,180);
-  }else{
-    // Serial.println("-- FOLLOWING_LINE -- ");
-    pidCalculations();
-    changeMotorSpeed();
-  }
- 
+  // //Put all of our functions here
+  // readIRSensors();
+  // calculateError();
+  // if (mode == STOPPED){
+  //   // Serial.println("-- STOPPED -- ");
+  //   motorStop();
+  // }else if (mode==NO_LINE){
+  //   // Serial.println("-- NO_LINE -- ");
+  //   // motorStop();
+  //   delay(400);
+  //   motorTurn(RIGHT,180);
+  // }else{
+  //   // Serial.println("-- FOLLOWING_LINE -- ");
+  //   pidCalculations();
+  //   changeMotorSpeed();
+  // }
 }
+
+
