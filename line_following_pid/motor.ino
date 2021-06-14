@@ -7,7 +7,7 @@ float adjTurn = 8;
 
 void changeMotorSpeed() {
   //Change motor speed of both motors accordingly
-  Serial.print(" OUTPUT : ");Serial.print(output);
+  //Serial.print(" OUTPUT : ");Serial.print(output);
   motor1newSpeed = motor1Speed + output;
   motor2newSpeed = motor2Speed - output;
   
@@ -15,8 +15,8 @@ void changeMotorSpeed() {
   constrain(motor2newSpeed, 0, 255);
   constrain(motor1newSpeed, 0, 255);
 
-  Serial.print("left speed: "); Serial.print(motor2newSpeed);
-  Serial.print(" right speed: "); Serial.println(motor1newSpeed);
+  //Serial.print("left speed: "); Serial.print(motor2newSpeed);
+  //Serial.print(" right speed: "); Serial.println(motor1newSpeed);
   
   //Set new speed, and run motors in forward direction
   ledcWrite(M2_ENABLE_CHANNEL, motor2newSpeed);

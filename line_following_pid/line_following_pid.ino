@@ -1,4 +1,5 @@
-// #include <Arduino_FreeRTOS.h>
+#include <PubSubClient.h>
+#include <WiFi.h>
 #define PWM_FREQUENCY   1000
 #define PWM_RESOLUTION  8
 
@@ -29,6 +30,10 @@ const int motor2pwmPin = 23;
 
 
 int mode = FOLLOWING_LINE;
+// Initialise the WiFi and MQTT Client objects
+WiFiClient wifiClient;
+// 1883 is the listener port for the Broker
+PubSubClient client(mqtt_server, 1885, wifiClient); 
 
 
 
@@ -37,13 +42,18 @@ int motor2newSpeed;
 
 void PIDtask(void * parameters){
   for(;;){
-    readIRSensors();
-    calculateError();
+    String test="connected";
+    vTaskDelay(500/portTICK_PERIOD_MS);
+    if (client.publish(test_topic, test.c_str())) {
+    Serial.println("Message sent!");
+  }
   }
 }
 
 void motorTask(void * parameter){
   for(;;){
+    readIRSensors();
+    calculateError();
     if (mode == STOPPED){
     // Serial.println("-- STOPPED -- ");
     motorStop();
@@ -61,6 +71,8 @@ void motorTask(void * parameter){
 }
 
 void setup() {
+  // Begin Serial Monitor
+  Serial.begin(115200);
   // Declare all Motor Channels
   ledcSetup(M1A_PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
   ledcSetup(M1B_PWM_CHANNEL, PWM_FREQUENCY, PWM_RESOLUTION);
@@ -79,14 +91,17 @@ void setup() {
   pinMode(motor2Backward, OUTPUT);
   pinMode(motor1pwmPin,OUTPUT);
   pinMode(motor2pwmPin,OUTPUT);
+
+  // Initialize wifi
+  if(init_wifi()) {Serial.println("WIFI--OK--");}
+  else {Serial.println("WIFI--OK--");}
   
-  // Begin Serial Monitor
-  Serial.begin(115200);
+  connect_mqtt();
   Serial.println("ESP32 PD Line Following Robot");
   xTaskCreate(
     PIDtask, // function name
     "PID task",
-    2000, // Stack size
+    8000, // Stack size
     NULL, // Task parameter
     1, // Task priority
     NULL
@@ -94,7 +109,7 @@ void setup() {
   xTaskCreate(
     motorTask, // function name
     "motor task",
-    2000, // Stack size
+    8000, // Stack size
     NULL, // Task parameter
     1, // Task priority
     NULL
@@ -124,5 +139,3 @@ void loop() {
   //   changeMotorSpeed();
   // }
 }
-
-
