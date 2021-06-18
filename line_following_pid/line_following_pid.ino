@@ -72,13 +72,11 @@ void motorTask(void * parameter){
     
     // Serial.println("mode: "+ String(mode));
     if (mode == STOPPED){
-    // Serial.print("-- STOPPED -- ");
-    motorStop();
+      // Serial.print("-- STOPPED -- ");
+      motorStop();
     }else if (mode==NO_LINE){
       // Serial.print("-- NO_LINE -- ");
       motorStop();
-      // vTaskDelay(400/portTICK_PERIOD_MS);
-      // motorTurn(RIGHT,180);
     }else if (mode == TURN_RIGHT){
       motorTurn(TURN_RIGHT,90);
     }else if (mode == TURN_LEFT){
@@ -145,20 +143,4 @@ void setup() {
 
 
 void loop() {
-  // //Put all of our functions here
-  // readIRSensors();
-  // calculateError();
-  // if (mode == STOPPED){
-  //   // Serial.println("-- STOPPED -- ");
-  //   motorStop();
-  // }else if (mode==NO_LINE){
-  //   // Serial.println("-- NO_LINE -- ");
-  //   // motorStop();
-  //   delay(400);
-  //   motorTurn(RIGHT,180);
-  // }else{
-  //   // Serial.println("-- FOLLOWING_LINE -- ");
-  //   pidCalculations();
-  //   changeMotorSpeed();
-  // }
 }

@@ -2,7 +2,7 @@ const int motor2Speed = 180;
 const int motor1Speed = 180; 
 
 const int adj = 1;
-float adjTurn = 8;
+float adjTurn = 5;
 
 void changeMotorSpeed() {
   //Change motor speed of both motors accordingly
@@ -69,7 +69,6 @@ void motorTurn(int direction, int degrees)
     digitalWrite(motor1Backward, LOW);  
     digitalWrite(motor2Forward, LOW);
     digitalWrite(motor2Backward, HIGH);
-  
   }
   readIRSensors();
   calculateError();
