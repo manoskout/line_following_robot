@@ -1,6 +1,7 @@
 float pTerm, iTerm, dTerm;
-int error;
-int previousError;
+int error=0;
+int previousError=0;
+// GAIN CONTSTANTS
 float kp = 11; //11
 float ki = 0;
 float kd = 11; //11
@@ -14,7 +15,6 @@ void readIRSensors() {
     int pinNum = irSensors[pin];
     irReadings[pin] = digitalRead(pinNum);
   }
-  vTaskDelay(100/portTICK_PERIOD_MS);
 }
 
 
@@ -45,7 +45,12 @@ void calculateError() {
   else if ((irReadings[0] == 1) && (irReadings[1] == 1) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = -3; mode = FOLLOWING_LINE;
   } 
-  
+  else if ((irReadings[0] == 1) && (irReadings[1] == 1) && (irReadings[2] == 1) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
+    mode = TURN_RIGHT;
+  } 
+  else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 1) && (irReadings[3] == 1) && (irReadings[4] == 1)) {
+    mode = TURN_LEFT;
+  } 
   if ((irReadings[0] == 1) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = -4; mode = FOLLOWING_LINE;
   } 
@@ -80,6 +85,7 @@ void printIRSensors(){
     Serial.print(irReadings[i]); Serial.print(" ");
   }
   // Serial.print("Error: "); Serial.print(error);
-  Serial.print(" ");
+  Serial.println(" ");
+  // vTaskDelay(400/portTICK_PERIOD_MS);
   
 }

@@ -1,5 +1,5 @@
-#include <PubSubClient.h>
-#include <WiFi.h>
+// #include <PubSubClient.h>
+// #include <WiFi.h>
 #define PWM_FREQUENCY   1000
 #define PWM_RESOLUTION  8
 
@@ -14,10 +14,10 @@
 #define FOLLOWING_LINE 1 
 #define NO_LINE 2
 
-#define RIGHT 1
-#define LEFT -1
+#define TURN_RIGHT 3
+#define TURN_LEFT -3
 
-#define MAX_SPEED 150
+#define MAX_SPEED 200
 
 const int irSensors[] = {13, 4, 5, 15, 18}; //IR sensor pins
 
@@ -28,45 +28,68 @@ const int motor2Forward = 25;
 const int motor2Backward = 26;
 const int motor2pwmPin = 23;
 
-
 int mode = FOLLOWING_LINE;
-// Initialise the WiFi and MQTT Client objects
-WiFiClient wifiClient;
-// 1883 is the listener port for the Broker
-PubSubClient client(mqtt_server, 1885, wifiClient); 
+// // For WIFI
+// const char* ssid = "Koutoulakis";
+// const char* password = "2810751032";
+// bool internet_connected = false;
 
-
-
-int motor1newSpeed;
-int motor2newSpeed;
+// // For MQTT
+// const char* mqtt_server = "192.168.1.99";  // IP of the MQTT broker
+// int mqtt_port=1885;
+// const char* car_topic = "car/car";
+// const char* imu_topic = "car/imu";
+// const char* test_topic = "car/test";
+// const char* mqtt_username = "manos"; // MQTT username
+// const char* mqtt_password = "tp4002"; // MQTT password
+// const char* clientID = "manos"; // MQTT client ID
+// // Initialise the WiFi and MQTT Client objects
+// WiFiClient espClient;
+// // 1883 is the listener port for the Broker
+// PubSubClient client(espClient); 
 
 void PIDtask(void * parameters){
   for(;;){
-    String test="connected";
-    vTaskDelay(500/portTICK_PERIOD_MS);
-    if (client.publish(test_topic, test.c_str())) {
-    Serial.println("Message sent!");
-  }
+    // if (!client.connected()) {
+      // reconnect();
+    // }
+    // String test="connected";
+    // vTaskDelay(500/portTICK_PERIOD_MS);
+    // if (client.publish(test_topic, test.c_str())) {
+    // Serial.println("Message sent!");
+  // }
+    readIRSensors();
+//    printIRSensors();
+    calculateError();
+    // task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
+    vTaskDelay(10/portTICK_PERIOD_MS);
+
   }
 }
 
 void motorTask(void * parameter){
   for(;;){
-    readIRSensors();
-    calculateError();
+    
+    // Serial.println("mode: "+ String(mode));
     if (mode == STOPPED){
-    // Serial.println("-- STOPPED -- ");
+    // Serial.print("-- STOPPED -- ");
     motorStop();
     }else if (mode==NO_LINE){
-      // Serial.println("-- NO_LINE -- ");
-      // motorStop();
-      vTaskDelay(400/portTICK_PERIOD_MS);
-      motorTurn(RIGHT,180);
+      // Serial.print("-- NO_LINE -- ");
+      motorStop();
+      // vTaskDelay(400/portTICK_PERIOD_MS);
+      // motorTurn(RIGHT,180);
+    }else if (mode == TURN_RIGHT){
+      motorTurn(TURN_RIGHT,90);
+    }else if (mode == TURN_LEFT){
+      motorTurn(TURN_LEFT,90);
     }else{
-      // Serial.println("-- FOLLOWING_LINE -- ");
+      // Serial.print("-- FOLLOWING_LINE -- ");
       pidCalculations();
       changeMotorSpeed();
     }
+    vTaskDelay(10/portTICK_PERIOD_MS);
+    // Serial.println();
   }
 }
 
@@ -92,11 +115,11 @@ void setup() {
   pinMode(motor1pwmPin,OUTPUT);
   pinMode(motor2pwmPin,OUTPUT);
 
-  // Initialize wifi
-  if(init_wifi()) {Serial.println("WIFI--OK--");}
-  else {Serial.println("WIFI--OK--");}
+  // // Initialize wifi
+  // if(init_wifi()) {Serial.println("WIFI--OK--");}
+  // else {Serial.println("WIFI--OK--");}
   
-  connect_mqtt();
+  
   Serial.println("ESP32 PD Line Following Robot");
   xTaskCreate(
     PIDtask, // function name
