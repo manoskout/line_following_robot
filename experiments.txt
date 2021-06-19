@@ -6,3 +6,5 @@ epeita tha to sigrinoume me to amaksaki me 2 rodes
 3) katanalwsi energeias simfwna me to 1 
 
 4) otan exei piasei to max_speed 200 feugei ektos strofhs sthn strofh 90 moirwn  
+
+5) otan exei error mikrotero tou 4  doulevoun oles oi rodes me thn idia fora.. kai otan to error ginete megalitero diladi h strofh einai sharp tote antistrepse thn fora kinisis
