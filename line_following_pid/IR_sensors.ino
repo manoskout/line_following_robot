@@ -57,7 +57,7 @@ void calculateError() {
   else if ((irReadings[0] == 0) && (irReadings[1] == 0) && (irReadings[2] == 0) && (irReadings[3] == 0) && (irReadings[4] == 0)) {
     error = 0; mode = NO_LINE;
   } 
-  else if ((irReadings[0] == 1) && (irReadings[1] == 1) && (irReadings[2] == 1) && (irReadings[3] == 1) && (irReadings[4] == 1)) {
+  else if ((irReadings[0] == 1) && (irReadings[1] == 0) && (irReadings[2] == 1) && (irReadings[3] == 0) && (irReadings[4] == 1)) {
     error = 0; mode = STOPPED;
   }
   // Serial.print(" Error: "); Serial.print(error);

@@ -49,16 +49,15 @@ void changeMotorSpeed() {
 void motorStop() {
   vTaskDelay(100/portTICK_PERIOD_MS);
   ledcWrite(M1_ENABLE_CHANNEL, 0);
-  ledcWrite(M2_ENABLE_CHANNEL, 0);
-  
+  ledcWrite(M2_ENABLE_CHANNEL, 0); 
 }
 
 void motorTurn(int direction, int degrees)
 {
   Serial.println("TURN");
-//  vTaskDelay(100/portTICK_PERIOD_MS);
-  ledcWrite(M1_ENABLE_CHANNEL, MAX_SPEED);
-  ledcWrite(M2_ENABLE_CHANNEL, MAX_SPEED);
+  vTaskDelay(100/portTICK_PERIOD_MS);
+  ledcWrite(M1_ENABLE_CHANNEL, TURN_SPEED);
+  ledcWrite(M2_ENABLE_CHANNEL, TURN_SPEED);
   if (direction==TURN_LEFT){
     digitalWrite(motor1Forward, LOW);
     digitalWrite(motor1Backward, HIGH);  

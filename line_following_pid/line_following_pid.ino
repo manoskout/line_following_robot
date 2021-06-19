@@ -17,7 +17,7 @@
 #define TURN_RIGHT 3
 #define TURN_LEFT -3
 
-#define MAX_SPEED 200
+#define TURN_SPEED 250
 
 const int irSensors[] = {13, 4, 5, 15, 18}; //IR sensor pins
 
@@ -74,6 +74,10 @@ void motorTask(void * parameter){
     if (mode == STOPPED){
       // Serial.print("-- STOPPED -- ");
       motorStop();
+      vTaskDelay(300/portTICK_PERIOD_MS);
+      
+      pidCalculations();
+      changeMotorSpeed();
     }else if (mode==NO_LINE){
       // Serial.print("-- NO_LINE -- ");
       motorStop();
