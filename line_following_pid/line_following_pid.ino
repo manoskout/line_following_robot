@@ -1,3 +1,4 @@
+
 // #include <PubSubClient.h>
 // #include <WiFi.h>
 #define PWM_FREQUENCY   1000
@@ -14,10 +15,10 @@
 #define FOLLOWING_LINE 1 
 #define NO_LINE 2
 
-#define TURN_RIGHT 3
-#define TURN_LEFT -3
+#define RIGHT 1
+#define LEFT -1
 
-#define TURN_SPEED 250
+#define MAX_SPEED 250
 
 const int irSensors[] = {13, 4, 5, 15, 18}; //IR sensor pins
 
@@ -62,36 +63,27 @@ void PIDtask(void * parameters){
 //    printIRSensors();
     calculateError();
     // task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
-    vTaskDelay(10/portTICK_PERIOD_MS);
+    vTaskDelay(1/portTICK_PERIOD_MS);
 
   }
 }
 
 void motorTask(void * parameter){
   for(;;){
-    
-    // Serial.println("mode: "+ String(mode));
     if (mode == STOPPED){
       // Serial.print("-- STOPPED -- ");
       motorStop();
-      vTaskDelay(300/portTICK_PERIOD_MS);
-      
-      pidCalculations();
-      changeMotorSpeed();
     }else if (mode==NO_LINE){
       // Serial.print("-- NO_LINE -- ");
       motorStop();
-    }else if (mode == TURN_RIGHT){
-      motorTurn(TURN_RIGHT,90);
-    }else if (mode == TURN_LEFT){
-      motorTurn(TURN_LEFT,90);
-    }else{
+//      motorTurn(LEFT, 180);
+    }
+    else{
       // Serial.print("-- FOLLOWING_LINE -- ");
-      pidCalculations();
+      calculatePID();
       changeMotorSpeed();
     }
-    vTaskDelay(10/portTICK_PERIOD_MS);
-    // Serial.println();
+    vTaskDelay(1/portTICK_PERIOD_MS);
   }
 }
 
