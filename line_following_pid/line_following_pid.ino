@@ -18,7 +18,7 @@
 #define RIGHT 1
 #define LEFT -1
 
-#define MAX_SPEED 250
+#define MAX_SPEED 255
 
 const int irSensors[] = {13, 4, 5, 15, 18}; //IR sensor pins
 
