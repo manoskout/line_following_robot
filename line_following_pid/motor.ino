@@ -11,13 +11,13 @@ void changeMotorSpeed() {
   //Constrain the new speed of motors to be between the range 0-255
   if (motor2newSpeed < 0) {
     motor2newSpeed = 0;
-  } else if (motor2newSpeed > 255) {
-    motor2newSpeed = 255;
+  } else if (motor2newSpeed > MAX_SPEED) {
+    motor2newSpeed = MAX_SPEED;
   }
   if (motor1newSpeed < 0) {
     motor1newSpeed = 0;
-  } else if (motor1newSpeed > 255) {
-    motor1newSpeed = 255;
+  } else if (motor1newSpeed > MAX_SPEED) {
+    motor1newSpeed = MAX_SPEED;
   }  
 
   // When there is a sharp turn move the wheels opposite way
