@@ -17,10 +17,10 @@
 
 #define RIGHT 1
 #define LEFT -1
-
+#define BASE_SPEED 150
 #define MAX_SPEED 255
 
-const int irSensors[] = {13, 4, 5, 15, 18}; //IR sensor pins
+const int irSensors[] = {18, 15, 5, 4, 13}; //IR sensor pins
 
 const int motor1Forward = 27;
 const int motor1Backward = 14;
@@ -28,47 +28,41 @@ const int motor1pwmPin = 19;
 const int motor2Forward = 25;
 const int motor2Backward = 26;
 const int motor2pwmPin = 23;
-
+const int motor2Speed = 100; 
+const int motor1Speed = 100; 
+int motor2newSpeed,motor1newSpeed;
 int mode = FOLLOWING_LINE;
-// // For WIFI
-// const char* ssid = "Koutoulakis";
-// const char* password = "2810751032";
-// bool internet_connected = false;
 
-// // For MQTT
-// const char* mqtt_server = "192.168.1.99";  // IP of the MQTT broker
-// int mqtt_port=1885;
-// const char* car_topic = "car/car";
-// const char* imu_topic = "car/imu";
-// const char* test_topic = "car/test";
-// const char* mqtt_username = "manos"; // MQTT username
-// const char* mqtt_password = "tp4002"; // MQTT password
-// const char* clientID = "manos"; // MQTT client ID
-// // Initialise the WiFi and MQTT Client objects
-// WiFiClient espClient;
-// // 1883 is the listener port for the Broker
-// PubSubClient client(espClient); 
+
+float pTerm, iTerm, dTerm;
+int error=0;
+int previousError=0;
+// GAIN CONTSTANTS
+float kp = 20;
+float ki = 0;
+float kd = 20; 
+float PIDvalue;
+int integral, derivative;
+int irReadings[5];
+
+TaskHandle_t PIDTask_handle = NULL;
+
 
 void PIDtask(void * parameters){
   for(;;){
-    // if (!client.connected()) {
-      // reconnect();
-    // }
-    // String test="connected";
-    // vTaskDelay(500/portTICK_PERIOD_MS);
-    // if (client.publish(test_topic, test.c_str())) {
-    // Serial.println("Message sent!");
-  // }
+
     readIRSensors();
 //    printIRSensors();
     calculateError();
     // task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
-    vTaskDelay(1/portTICK_PERIOD_MS);
-
+    if (error==5 || error ==-5){
+          vTaskSuspend(NULL);
+    }
+    vTaskDelay(5/portTICK_PERIOD_MS);
   }
 }
 
-void motorTask(void * parameter){
+void motorTask(void * parameters){
   for(;;){
     if (mode == STOPPED){
       // Serial.print("-- STOPPED -- ");
@@ -76,17 +70,50 @@ void motorTask(void * parameter){
     }else if (mode==NO_LINE){
       // Serial.print("-- NO_LINE -- ");
       motorStop();
-//      motorTurn(LEFT, 180);
+      // motorTurn(LEFT, 180);
     }
     else{
       // Serial.print("-- FOLLOWING_LINE -- ");
       calculatePID();
       changeMotorSpeed();
     }
-    vTaskDelay(1/portTICK_PERIOD_MS);
+    vTaskDelay(5/portTICK_PERIOD_MS);
   }
 }
-
+void debugTask(void * parameters){
+  for(;;){
+    if(error==-5){
+      Serial.print(motor2newSpeed);
+      Serial.print(", "); 
+      Serial.print("-"); 
+      Serial.print(motor1newSpeed);
+      Serial.print(", "); 
+      Serial.print(error);
+      Serial.println();
+    }else if (error ==5){
+      Serial.print("-"); 
+      Serial.print(motor2newSpeed); 
+      Serial.print(", ");
+      Serial.print(motor1newSpeed);
+      Serial.print(", ");
+      //  Serial.print(" error: "); 
+      Serial.print(error);
+      Serial.println();
+    }else{
+        //  Serial.print("left speed: "); 
+      Serial.print(motor2newSpeed);
+      //  Serial.print(" right speed: "); 
+      Serial.print(", "); 
+      Serial.print(motor1newSpeed);
+      Serial.print(", "); 
+      //  Serial.print(" error: "); 
+      Serial.print(error);
+      Serial.println();
+    }
+    
+    vTaskDelay(5/portTICK_PERIOD_MS);
+  }
+}
 void setup() {
   // Begin Serial Monitor
   Serial.begin(115200);
@@ -121,12 +148,20 @@ void setup() {
     8000, // Stack size
     NULL, // Task parameter
     1, // Task priority
-    NULL
+    &PIDTask_handle // Task handler
   );
   xTaskCreate(
     motorTask, // function name
     "motor task",
     8000, // Stack size
+    NULL, // Task parameter
+    1, // Task priority
+    NULL
+  );
+  xTaskCreate(
+    debugTask, // function name
+    "Debug task",
+    2000, // Stack size
     NULL, // Task parameter
     1, // Task priority
     NULL

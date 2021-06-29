@@ -1,14 +1,3 @@
-float pTerm, iTerm, dTerm;
-float error=0;
-int previousError=0;
-// GAIN CONTSTANTS
-float kp = 40;
-float ki = 0;
-float kd = 30; 
-float PIDvalue;
-int integral, derivative;
-int irReadings[5];
-
 void readIRSensors() {
   //Read the IR sensors and put the readings in irReadings array
   for (int pin = 0; pin < 5; pin++) {
@@ -75,14 +64,6 @@ void calculatePID() {
   previousError = error;
 }
 
-//void calculatePID()
-//{
-//  pTerm = error;
-//  iTerm = iTerm + error;
-//  dTerm = error-previousError;
-//  PIDvalue = (kp*pTerm) + (ki*iTerm) + (kd*dTerm);
-//  previousError = error;
-//}
 
 void printIRSensors(){
   /*
@@ -94,7 +75,5 @@ void printIRSensors(){
     Serial.print(irReadings[i]); Serial.print(" ");
   }
   // Serial.print("Error: "); Serial.print(error);
-  Serial.println(" ");
-  // vTaskDelay(400/portTICK_PERIOD_MS);
-  
+  Serial.println(" ");  
 }
