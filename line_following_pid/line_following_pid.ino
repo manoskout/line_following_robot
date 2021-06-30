@@ -1,6 +1,3 @@
-
-// #include <PubSubClient.h>
-// #include <WiFi.h>
 #define PWM_FREQUENCY   1000
 #define PWM_RESOLUTION  8
 
@@ -17,7 +14,7 @@
 
 #define RIGHT 1
 #define LEFT -1
-#define BASE_SPEED 150
+#define BASE_SPEED 120
 #define MAX_SPEED 255
 
 const int irSensors[] = {18, 15, 5, 4, 13}; //IR sensor pins
@@ -28,8 +25,8 @@ const int motor1pwmPin = 19;
 const int motor2Forward = 25;
 const int motor2Backward = 26;
 const int motor2pwmPin = 23;
-const int motor2Speed = 100; 
-const int motor1Speed = 100; 
+const int motor2Speed = 120; 
+const int motor1Speed = 120; 
 int motor2newSpeed,motor1newSpeed;
 int mode = FOLLOWING_LINE;
 
@@ -38,9 +35,9 @@ float pTerm, iTerm, dTerm;
 int error=0;
 int previousError=0;
 // GAIN CONTSTANTS
-float kp = 20;
+float kp = 30;
 float ki = 0;
-float kd = 20; 
+float kd = 10; 
 float PIDvalue;
 int integral, derivative;
 int irReadings[5];
@@ -50,14 +47,12 @@ TaskHandle_t PIDTask_handle = NULL;
 
 void PIDtask(void * parameters){
   for(;;){
-
-    readIRSensors();
-//    printIRSensors();
-    calculateError();
-    // task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
-    if (error==5 || error ==-5){
+    if ((error==5 || error ==-5) && PIDTask_handle!=NULL){
           vTaskSuspend(NULL);
     }
+    readIRSensors();
+    calculateError();
+    // task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
     vTaskDelay(5/portTICK_PERIOD_MS);
   }
 }
@@ -96,17 +91,13 @@ void debugTask(void * parameters){
       Serial.print(", ");
       Serial.print(motor1newSpeed);
       Serial.print(", ");
-      //  Serial.print(" error: "); 
       Serial.print(error);
       Serial.println();
     }else{
-        //  Serial.print("left speed: "); 
       Serial.print(motor2newSpeed);
-      //  Serial.print(" right speed: "); 
       Serial.print(", "); 
       Serial.print(motor1newSpeed);
       Serial.print(", "); 
-      //  Serial.print(" error: "); 
       Serial.print(error);
       Serial.println();
     }
@@ -135,11 +126,6 @@ void setup() {
   pinMode(motor2Backward, OUTPUT);
   pinMode(motor1pwmPin,OUTPUT);
   pinMode(motor2pwmPin,OUTPUT);
-
-  // // Initialize wifi
-  // if(init_wifi()) {Serial.println("WIFI--OK--");}
-  // else {Serial.println("WIFI--OK--");}
-  
   
   Serial.println("ESP32 PD Line Following Robot");
   xTaskCreate(

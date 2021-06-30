@@ -1,8 +1,11 @@
 
 
-float adjTurn = 2;
+float adjTurn = 0.5;
 void changeMotorSpeed() {
-  //Change motor speed of both motors accordingly
+  /*
+   * Change motor speed of both motors accordingly
+   */
+  
   motor1newSpeed = motor1Speed + PIDvalue;
   motor2newSpeed = motor2Speed - PIDvalue;
   
@@ -20,26 +23,14 @@ void changeMotorSpeed() {
 
   // When there is a sharp turn move the wheels opposite way
   if (error >= 5) {
-    motor1newSpeed = BASE_SPEED;
-    motor2newSpeed = BASE_SPEED;
-//    
-//    digitalWrite(motor1Forward, HIGH);
-//    digitalWrite(motor1Backward, LOW);
-//    digitalWrite(motor2Forward, LOW);
-//    digitalWrite(motor2Backward, HIGH);
+    motor1newSpeed = MAX_SPEED;
+    motor2newSpeed = MAX_SPEED;
 
     motorTurn(RIGHT, 90);
   } 
   else if (error <= -5) {
-    motor1newSpeed = BASE_SPEED;
-    motor2newSpeed = BASE_SPEED;
-    
-//    
-//    digitalWrite(motor1Forward, LOW);
-//    digitalWrite(motor1Backward, HIGH);
-//    digitalWrite(motor2Forward, HIGH);
-//    digitalWrite(motor2Backward, LOW);
-//    
+    motor1newSpeed = MAX_SPEED;
+    motor2newSpeed = MAX_SPEED;
     motorTurn(LEFT, 90);
 }
   // When there is a light turn move the wheels in the same way
@@ -59,26 +50,18 @@ void changeMotorSpeed() {
   //Set new speed, and run motors in forward direction
   ledcWrite(M2_ENABLE_CHANNEL, motor2newSpeed);
   ledcWrite(M1_ENABLE_CHANNEL, motor1newSpeed);
-
-//  vTaskDelay(1/portTICK_PERIOD_MS);
-  
-
 }
 
 void motorStop() {
-
   motor1newSpeed = 0;
   motor2newSpeed = 0;
-  
   ledcWrite(M1_ENABLE_CHANNEL, motor1newSpeed);
   ledcWrite(M2_ENABLE_CHANNEL, motor2newSpeed); 
-
-//  vTaskDelay(2000/portTICK_PERIOD_MS);
 }
 
 void motorTurn(int direction, int degrees)
 {
-//  vTaskDelay(20/portTICK_PERIOD_MS);  
+//  vTaskDelay(50/portTICK_PERIOD_MS);  
   if (direction == LEFT){
     digitalWrite(motor1Forward, LOW);
     digitalWrite(motor1Backward, HIGH);  
@@ -91,8 +74,8 @@ void motorTurn(int direction, int degrees)
     digitalWrite(motor2Forward, LOW);
     digitalWrite(motor2Backward, HIGH);
   }
-
+  
   vTaskDelay(round(adjTurn*degrees+1)/portTICK_PERIOD_MS);  
-    vTaskResume(PIDTask_handle);
+  vTaskResume(PIDTask_handle);
 
 }
