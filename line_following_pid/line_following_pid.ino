@@ -15,7 +15,7 @@
 #define RIGHT 1
 #define LEFT -1
 #define BASE_SPEED 120
-#define MAX_SPEED 255
+#define MAX_SPEED 180
 
 const int irSensors[] = {18, 15, 5, 4, 13}; //IR sensor pins
 
@@ -35,9 +35,9 @@ float pTerm, iTerm, dTerm;
 int error=0;
 int previousError=0;
 // GAIN CONTSTANTS
-float kp = 30;
+float kp = 20;
 float ki = 0;
-float kd = 10; 
+float kd = 60; 
 float PIDvalue;
 int integral, derivative;
 int irReadings[5];
@@ -47,7 +47,7 @@ TaskHandle_t PIDTask_handle = NULL;
 
 void PIDtask(void * parameters){
   for(;;){
-    if ((error==5 || error ==-5) && PIDTask_handle!=NULL){
+    if (error==5 || error ==-5){
           vTaskSuspend(NULL);
     }
     readIRSensors();
@@ -93,7 +93,7 @@ void debugTask(void * parameters){
       Serial.print(", ");
       Serial.print(error);
       Serial.println();
-    }else{
+    }else if (error != 0) {
       Serial.print(motor2newSpeed);
       Serial.print(", "); 
       Serial.print(motor1newSpeed);

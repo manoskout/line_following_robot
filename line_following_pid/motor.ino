@@ -1,6 +1,6 @@
-
-
 float adjTurn = 0.5;
+
+
 void changeMotorSpeed() {
   /*
    * Change motor speed of both motors accordingly
@@ -27,12 +27,14 @@ void changeMotorSpeed() {
     motor2newSpeed = MAX_SPEED;
 
     motorTurn(RIGHT, 90);
+    vTaskResume(PIDTask_handle);
   } 
   else if (error <= -5) {
     motor1newSpeed = MAX_SPEED;
     motor2newSpeed = MAX_SPEED;
     motorTurn(LEFT, 90);
-}
+    vTaskResume(PIDTask_handle);
+  }
   // When there is a light turn move the wheels in the same way
   else {
     digitalWrite(motor1Forward, HIGH);
@@ -61,7 +63,7 @@ void motorStop() {
 
 void motorTurn(int direction, int degrees)
 {
-//  vTaskDelay(50/portTICK_PERIOD_MS);  
+//  vTaskDelay(100/portTICK_PERIOD_MS);  
   if (direction == LEFT){
     digitalWrite(motor1Forward, LOW);
     digitalWrite(motor1Backward, HIGH);  
@@ -76,6 +78,4 @@ void motorTurn(int direction, int degrees)
   }
   
   vTaskDelay(round(adjTurn*degrees+1)/portTICK_PERIOD_MS);  
-  vTaskResume(PIDTask_handle);
-
 }
